@@ -44,26 +44,16 @@ export default function Navbar() {
     >
       {/* Logo */}
       <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-        {/* Profile photo */}
+        {/* Monogram */}
         <div style={{
-          width: 42, height: 42,
-          borderRadius: '50%',
+          width: 34, height: 34,
+          borderRadius: 9,
           background: 'linear-gradient(135deg, #8b5cf6, #22d3ee)',
-          padding: 2,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'var(--mono)', fontWeight: 800, fontSize: 15, color: '#fff',
           flexShrink: 0,
         }}>
-          <img
-            src="/moosa.jpeg"
-            alt="Moosa Abbasi"
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              objectPosition: 'center top',
-              display: 'block',
-            }}
-          />
+          MA
         </div>
         <span style={{ fontFamily: 'var(--font)', fontWeight: 600, fontSize: 15, color: 'var(--heading)' }}>
           Moosa Abbasi
