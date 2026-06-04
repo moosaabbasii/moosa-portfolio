@@ -1,331 +1,231 @@
-import { useRef } from 'react'
-import { motion, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { useRef, useState } from 'react'
+import { motion, useInView } from 'framer-motion'
+import { FiGithub, FiExternalLink } from 'react-icons/fi'
 import { projects } from '../data/portfolio'
-
-/* ── 3D tilt card ── */
-function TiltCard({ children, color }: { children: React.ReactNode; color: string }) {
-  const cardRef = useRef<HTMLDivElement>(null)
-
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), { stiffness: 200, damping: 30 })
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 200, damping: 30 })
-  const glareX = useTransform(mouseX, [-0.5, 0.5], ['0%', '100%'])
-  const glareY = useTransform(mouseY, [-0.5, 0.5], ['0%', '100%'])
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = cardRef.current!.getBoundingClientRect()
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5)
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5)
-  }
-
-  const handleMouseLeave = () => {
-    mouseX.set(0)
-    mouseY.set(0)
-  }
-
-  return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformPerspective: 800,
-        transformStyle: 'preserve-3d',
-        position: 'relative',
-        borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden',
-        background: 'var(--card)',
-        border: '1px solid var(--border)',
-        transition: 'border-color 0.3s, box-shadow 0.3s',
-      }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = `${color}44`
-        ;(e.currentTarget as HTMLElement).style.boxShadow = `0 16px 48px ${color}18`
-      }}
-      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'
-        ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
-      }}
-    >
-      {/* Glare */}
-      <motion.div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: `radial-gradient(circle at ${glareX} ${glareY}, rgba(255,255,255,0.06), transparent 60%)`,
-          pointerEvents: 'none',
-          zIndex: 2,
-          borderRadius: 'inherit',
-        }}
-      />
-      {children}
-    </motion.div>
-  )
-}
 
 const featured = projects.filter(p => p.featured)
 const rest = projects.filter(p => !p.featured)
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12 } },
-}
+function ProjectCard({
+  project,
+  index,
+  large = false,
+}: {
+  project: typeof projects[number]
+  index: number
+  large?: boolean
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [spotlight, setSpotlight] = useState({ x: 50, y: 50 })
+  const [hovered, setHovered] = useState(false)
 
-const cardAnim = {
-  hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect()
+    if (!rect) return
+    const xPct = (e.clientX - rect.left) / rect.width
+    const yPct = (e.clientY - rect.top) / rect.height
+    setTilt({ x: (yPct - 0.5) * -8, y: (xPct - 0.5) * 8 })
+    setSpotlight({ x: xPct * 100, y: yPct * 100 })
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: index * 0.07, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setTilt({ x: 0, y: 0 }); setHovered(false) }}
+      style={{
+        background: hovered
+          ? 'rgba(255,255,255,0.06)'
+          : large ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.03)',
+        border: hovered
+          ? '1px solid rgba(124,58,237,0.35)'
+          : '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 20,
+        padding: large ? '36px 32px' : '28px 26px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: 'default',
+        transform: hovered
+          ? `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateZ(6px)`
+          : 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0px)',
+        transition: hovered ? 'transform 0.08s linear, background 0.2s, border 0.2s, box-shadow 0.2s' : 'transform 0.5s ease, background 0.3s, border 0.3s, box-shadow 0.3s',
+        boxShadow: hovered
+          ? '0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(124,58,237,0.08)'
+          : '0 4px 20px rgba(0,0,0,0.2)',
+        backdropFilter: 'blur(12px)',
+      }}
+    >
+      {/* Mouse-position spotlight */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: hovered
+          ? `radial-gradient(circle at ${spotlight.x}% ${spotlight.y}%, rgba(124,58,237,0.14), transparent 55%)`
+          : 'none',
+        transition: hovered ? 'none' : 'opacity 0.4s',
+        pointerEvents: 'none',
+        borderRadius: 20,
+      }} />
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: large ? 28 : 22 }}>{project.emoji}</span>
+          <div>
+            <h3 style={{
+              fontSize: large ? 18 : 15,
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              color: 'rgba(255,255,255,0.92)',
+              lineHeight: 1.2,
+            }}>
+              {project.name}
+            </h3>
+            <p style={{ fontSize: 11, color: 'rgba(167,139,250,0.8)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 2 }}>
+              {project.tagline}
+            </p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+          {project.github && (
+            <a href={project.github} target="_blank" rel="noopener noreferrer"
+              style={{ color: 'rgba(255,255,255,0.3)', transition: 'color 0.2s', display: 'flex' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.85)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+            >
+              <FiGithub size={17} />
+            </a>
+          )}
+          {project.live && (
+            <a href={project.live} target="_blank" rel="noopener noreferrer"
+              style={{ color: 'rgba(255,255,255,0.3)', transition: 'color 0.2s', display: 'flex' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#a78bfa')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+            >
+              <FiExternalLink size={17} />
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Description */}
+      <p style={{
+        fontSize: large ? 14 : 13,
+        color: 'rgba(255,255,255,0.45)',
+        lineHeight: 1.65,
+        flex: 1,
+        position: 'relative',
+      }}>
+        {project.description}
+      </p>
+
+      {/* Tech stack */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, position: 'relative' }}>
+        {project.tech.map(t => (
+          <span key={t} style={{
+            padding: '3px 10px',
+            background: 'rgba(124,58,237,0.12)',
+            border: '1px solid rgba(124,58,237,0.20)',
+            borderRadius: 100,
+            fontSize: 11, fontWeight: 500,
+            color: 'rgba(167,139,250,0.8)',
+          }}>
+            {t}
+          </span>
+        ))}
+      </div>
+    </motion.div>
+  )
 }
 
 export default function Projects() {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const headerRef = useRef(null)
+  const headerInView = useInView(headerRef, { once: true, margin: '-60px' })
 
   return (
-    <section id="projects" ref={ref} style={{ position: 'relative', overflow: 'hidden' }}>
-
-      {/* Rich multi-color CSS mesh gradient — emerald + indigo + rose */}
+    <section
+      id="projects"
+      className="section-pad"
+      style={{
+        padding: '120px 80px',
+        background: '#0a0d1a',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Ambient purple glow */}
       <div style={{
-        position: 'absolute', inset: 0, zIndex: 0,
-        background: `
-          radial-gradient(ellipse at 0% 0%,   rgba(16,185,129,0.18) 0%, transparent 50%),
-          radial-gradient(ellipse at 100% 0%,  rgba(99,102,241,0.18) 0%, transparent 50%),
-          radial-gradient(ellipse at 100% 100%,rgba(244,63,94,0.14) 0%, transparent 50%),
-          radial-gradient(ellipse at 0% 100%,  rgba(34,211,238,0.12) 0%, transparent 50%),
-          radial-gradient(ellipse at 50% 50%,  rgba(139,92,246,0.08) 0%, transparent 60%),
-          #06060f
-        `,
+        position: 'absolute',
+        top: '30%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 900, height: 600,
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, rgba(99,102,241,0.05) 50%, transparent 70%)',
+        filter: 'blur(60px)',
+        pointerEvents: 'none',
       }} />
-
-      {/* Dot-grid texture */}
       <div style={{
-        position: 'absolute', inset: 0, zIndex: 1,
-        backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
-        backgroundSize: '28px 28px',
-      }} />
-
-      {/* Diagonal light streak */}
-      <div style={{
-        position: 'absolute', top: '-20%', left: '-10%', zIndex: 1,
-        width: '70%', height: '140%',
-        background: 'linear-gradient(135deg, rgba(16,185,129,0.04) 0%, rgba(99,102,241,0.04) 50%, transparent 100%)',
-        transform: 'rotate(-15deg)',
+        position: 'absolute',
+        bottom: '10%', right: '10%',
+        width: 500, height: 400,
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(59,130,246,0.07) 0%, transparent 70%)',
+        filter: 'blur(80px)',
         pointerEvents: 'none',
       }} />
 
-      {/* Edge fades */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 100, zIndex: 2, background: 'linear-gradient(to bottom, var(--bg2), transparent)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, zIndex: 2, background: 'linear-gradient(to top, var(--bg), transparent)', pointerEvents: 'none' }} />
+      {/* Header */}
+      <motion.div
+        ref={headerRef}
+        initial={{ opacity: 0, y: 16 }}
+        animate={headerInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.5 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 60, position: 'relative' }}
+      >
+        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a78bfa' }}>
+          Projects
+        </span>
+        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', whiteSpace: 'nowrap' }}>
+          {projects.length} projects
+        </span>
+      </motion.div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 3 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          style={{ marginBottom: 56 }}
-        >
-          <div className="section-label">04. Projects</div>
-          <h2 className="section-title">
-            What I've <span className="grad">Built</span>
-          </h2>
-          <div className="divider" />
-          <p className="section-subtitle">
-            A mix of cloud systems, algorithms, computer vision, and data structures — things I build to learn and ship.
-          </p>
-        </motion.div>
+      {/* Featured grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginBottom: 20, position: 'relative' }}>
+        {featured.map((p, i) => (
+          <ProjectCard key={p.name} project={p} index={i} large />
+        ))}
+      </div>
 
-        {/* Featured projects */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate={inView ? 'show' : 'hidden'}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: 24,
-            marginBottom: 24,
-          }}
-        >
-          {featured.map(project => (
-            <motion.div key={project.name} variants={cardAnim}>
-              <TiltCard color={project.color}>
-                <div style={{ padding: 28 }}>
-                  {/* Top accent */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0, left: 0, right: 0,
-                      height: 2,
-                      background: `linear-gradient(90deg, ${project.color}, ${project.color}44)`,
-                    }}
-                  />
+      {/* Divider */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '48px 0', position: 'relative' }}
+      >
+        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', whiteSpace: 'nowrap' }}>
+          More Projects
+        </span>
+        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+      </motion.div>
 
-                  {/* Header */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                    <div>
-                      <div style={{ fontSize: 26, marginBottom: 8 }}>{project.emoji}</div>
-                      <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--heading)', marginBottom: 4 }}>
-                        {project.name}
-                      </h3>
-                      <p style={{ fontSize: 13, color: project.color, fontWeight: 600, fontFamily: 'var(--mono)' }}>
-                        {project.tagline}
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-                      {project.github && (
-                        <a
-                          href={project.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            padding: '5px 12px',
-                            borderRadius: 6,
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            fontSize: 12,
-                            fontFamily: 'var(--mono)',
-                            color: 'var(--text2)',
-                            transition: 'background 0.2s, color 0.2s',
-                          }}
-                          onMouseEnter={e => {
-                            (e.currentTarget as HTMLElement).style.background = `${project.color}22`
-                            ;(e.currentTarget as HTMLElement).style.color = project.color
-                          }}
-                          onMouseLeave={e => {
-                            (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
-                            ;(e.currentTarget as HTMLElement).style.color = 'var(--text2)'
-                          }}
-                        >
-                          GitHub ↗
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                  <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 20 }}>
-                    {project.description}
-                  </p>
-
-                  {/* Tech tags */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {project.tech.map(t => (
-                      <span
-                        key={t}
-                        style={{
-                          fontSize: 11,
-                          fontFamily: 'var(--mono)',
-                          padding: '3px 10px',
-                          borderRadius: 4,
-                          background: `${project.color}12`,
-                          borderLeft: `2px solid ${project.color}`,
-                          color: 'var(--text2)',
-                        }}
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </TiltCard>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Other projects */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.5 }}
-          style={{ marginBottom: 20 }}
-        >
-          <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text2)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 16 }}>
-            Other noteworthy work
-          </div>
-        </motion.div>
-
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate={inView ? 'show' : 'hidden'}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 16,
-          }}
-        >
-          {rest.map(project => (
-            <motion.div
-              key={project.name}
-              variants={cardAnim}
-              style={{
-                background: 'var(--card)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)',
-                padding: 22,
-                transition: 'border-color 0.3s, transform 0.3s, box-shadow 0.3s',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-              }}
-              onMouseEnter={e => {
-                const el = e.currentTarget
-                el.style.borderColor = `${project.color}44`
-                el.style.transform = 'translateY(-4px)'
-                el.style.boxShadow = `0 12px 32px ${project.color}14`
-              }}
-              onMouseLeave={e => {
-                const el = e.currentTarget
-                el.style.borderColor = 'var(--border)'
-                el.style.transform = 'translateY(0)'
-                el.style.boxShadow = 'none'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 22 }}>{project.emoji}</span>
-                {project.github && (
-                  <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontFamily: 'var(--mono)', color: 'var(--text2)', transition: 'color 0.2s' }}
-                    onMouseEnter={e => ((e.target as HTMLElement).style.color = project.color)}
-                    onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text2)')}
-                  >
-                    GitHub ↗
-                  </a>
-                )}
-              </div>
-              <h4 style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)' }}>{project.name}</h4>
-              <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.6 }}>{project.description}</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 4 }}>
-                {project.tech.slice(0, 3).map(t => (
-                  <span key={t} style={{ fontSize: 11, fontFamily: 'var(--mono)', padding: '2px 8px', borderRadius: 4, background: `${project.color}12`, borderLeft: `2px solid ${project.color}`, color: 'var(--text2)' }}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* GitHub CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.8 }}
-          style={{ textAlign: 'center', marginTop: 52 }}
-        >
-          <a
-            href="https://github.com/moosaabbasii"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-outline"
-          >
-            View all on GitHub ↗
-          </a>
-        </motion.div>
+      {/* Rest — 3 columns */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, position: 'relative' }}>
+        {rest.map((p, i) => (
+          <ProjectCard key={p.name} project={p} index={i} />
+        ))}
       </div>
     </section>
   )

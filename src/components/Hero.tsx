@@ -1,249 +1,159 @@
-import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { info, badges } from '../data/portfolio'
+import { FiArrowRight } from 'react-icons/fi'
 import HeroScene from './three/HeroScene'
+import { info } from '../data/portfolio'
 
-function TypewriterRoles({ roles }: { roles: string[] }) {
-  const [index, setIndex] = useState(0)
-  const [displayed, setDisplayed] = useState('')
-  const [deleting, setDeleting] = useState(false)
-  const [blink, setBlink] = useState(true)
-
-  useEffect(() => {
-    const target = roles[index]
-    let timeout: ReturnType<typeof setTimeout>
-    if (!deleting && displayed.length < target.length) {
-      timeout = setTimeout(() => setDisplayed(target.slice(0, displayed.length + 1)), 65)
-    } else if (!deleting && displayed.length === target.length) {
-      timeout = setTimeout(() => setDeleting(true), 2200)
-    } else if (deleting && displayed.length > 0) {
-      timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 40)
-    } else {
-      setDeleting(false)
-      setIndex((index + 1) % roles.length)
-    }
-    return () => clearTimeout(timeout)
-  }, [displayed, deleting, index, roles])
-
-  useEffect(() => {
-    const id = setInterval(() => setBlink(b => !b), 530)
-    return () => clearInterval(id)
-  }, [])
-
-  return (
-    <span style={{ fontFamily: 'var(--mono)', fontSize: 'clamp(15px, 2vw, 19px)', color: 'var(--accent2)', fontWeight: 500 }}>
-      &gt;&nbsp;{displayed}
-      <span style={{ opacity: blink ? 1 : 0, color: 'var(--accent)' }}>|</span>
-    </span>
-  )
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 32 },
-  show: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.12, duration: 0.65, ease: [0.22, 1, 0.36, 1] },
-  }),
-}
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 28 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] },
+})
 
 export default function Hero() {
   return (
-    <section
-      id="hero"
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        position: 'relative',
-        paddingTop: 68,
-        overflow: 'hidden',
-      }}
-    >
-      {/* ── 3D canvas — right half only so it never touches text ── */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0, bottom: 0,
-          left: '48%',   /* starts at center, never bleeds into text */
-          right: 0,
-          zIndex: 0,
-        }}
-      >
-        <Suspense fallback={null}>
-          <HeroScene />
-        </Suspense>
-
-        {/* Soft left-edge fade so scene blends into background */}
-        <div
+    <section className="dot-grid" style={{
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '0 80px',
+      position: 'relative',
+      overflow: 'hidden',
+      background: '#fafbff',
+    }}>
+      {/* ── Left: massive typography ── */}
+      <div style={{ flex: '0 0 52%', zIndex: 2, position: 'relative' }}>
+        <motion.p
+          {...fadeUp(0)}
           style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(90deg, var(--bg) 0%, rgba(6,6,15,0.0) 30%)',
-            pointerEvents: 'none',
+            fontSize: 12, fontWeight: 700,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            color: 'var(--accent)', marginBottom: 28,
           }}
-        />
-        {/* Bottom fade into next section */}
-        <div
+        >
+          Moosa Abbasi · USF · Tampa, FL
+        </motion.p>
+
+        <motion.h1
+          {...fadeUp(0.08)}
           style={{
-            position: 'absolute',
-            bottom: 0, left: 0, right: 0,
-            height: 180,
-            background: 'linear-gradient(to bottom, transparent, var(--bg))',
-            pointerEvents: 'none',
+            fontSize: 'clamp(52px, 7.5vw, 108px)',
+            fontWeight: 900,
+            lineHeight: 0.93,
+            letterSpacing: '-0.04em',
+            color: 'var(--text)',
+            marginBottom: 32,
           }}
-        />
-      </div>
+        >
+          BUILDING<br />
+          SYSTEMS,<br />
+          <span className="text-shimmer">AI &amp;</span><br />
+          SOFTWARE
+        </motion.h1>
 
-      {/* Ghost avatar watermark — top right */}
-      <div
-        style={{
-          position: 'absolute',
-          right: '5%',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          width: 'clamp(220px, 28vw, 420px)',
-          height: 'clamp(220px, 28vw, 420px)',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          opacity: 0.07,
-          pointerEvents: 'none',
-          zIndex: 1,
-          filter: 'blur(1px) saturate(0.4)',
-        }}
-      >
-        <img
-          src="/avatar.png"
-          alt=""
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
-      </div>
+        <motion.p
+          {...fadeUp(0.18)}
+          style={{
+            fontSize: 16, color: 'var(--text2)',
+            lineHeight: 1.7, maxWidth: 380,
+            marginBottom: 40,
+          }}
+        >
+          CS student at USF Honors College, 3.90 GPA.
+          Building serverless cloud systems, AI research pipelines,
+          and software that actually ships.
+        </motion.p>
 
-      {/* Grid overlay */}
-      <div className="grid-bg" style={{ zIndex: 1 }} />
+        <motion.div
+          {...fadeUp(0.26)}
+          style={{ display: 'flex', gap: 36, alignItems: 'center' }}
+        >
+          <a
+            href="#projects"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              fontSize: 15, fontWeight: 700, color: 'var(--text)',
+              letterSpacing: '-0.01em',
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text)'}
+          >
+            View Projects <FiArrowRight size={16} />
+          </a>
+          <a
+            href={info.resume}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 14, color: 'var(--text3)', fontWeight: 500, transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--text2)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text3)'}
+          >
+            Resume ↗
+          </a>
+        </motion.div>
 
-      {/* ── Content layer ── */}
-      <div
-        className="container"
-        style={{
-          position: 'relative',
-          zIndex: 2,
-          maxWidth: 680,
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          {/* Greeting */}
-          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="show">
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--accent)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-              Hi, I'm —
-            </span>
-          </motion.div>
-
-          {/* Name */}
-          <motion.div custom={1} variants={fadeUp} initial="hidden" animate="show">
-            <h1
-              style={{
-                fontSize: 'clamp(52px, 9vw, 104px)',
-                fontWeight: 900,
-                lineHeight: 0.95,
-                letterSpacing: '-0.03em',
-                color: 'var(--heading)',
-              }}
+        {/* Social */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          style={{ display: 'flex', gap: 24, marginTop: 52 }}
+        >
+          {[
+            { label: 'GitHub',   href: info.github },
+            { label: 'LinkedIn', href: info.linkedin },
+            { label: info.email, href: `mailto:${info.email}` },
+          ].map(l => (
+            <a
+              key={l.label}
+              href={l.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500, letterSpacing: '0.02em', transition: 'color 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text3)'}
             >
-              {info.firstName}
-              <br />
-              <span style={{ background: 'var(--grad)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                {info.lastName}
-              </span>
-            </h1>
-          </motion.div>
-
-          {/* Typewriter */}
-          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="show">
-            <TypewriterRoles roles={info.roles} />
-          </motion.div>
-
-          {/* Bio */}
-          <motion.p
-            custom={3} variants={fadeUp} initial="hidden" animate="show"
-            style={{ color: 'var(--text2)', fontSize: 16, lineHeight: 1.75, maxWidth: 500 }}
-          >
-            {info.bio}
-          </motion.p>
-
-          {/* Badges */}
-          <motion.div custom={4} variants={fadeUp} initial="hidden" animate="show" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {badges.map(b => (
-              <span key={b.text} className={`chip ${b.color}`}>{b.text}</span>
-            ))}
-          </motion.div>
-
-          {/* CTA Buttons */}
-          <motion.div custom={5} variants={fadeUp} initial="hidden" animate="show" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 4 }}>
-            <a href="#projects" className="btn-primary">
-              View My Work <span style={{ fontSize: 16 }}>→</span>
+              {l.label}
             </a>
-            <a href="#contact" className="btn-outline">
-              Get In Touch
-            </a>
-          </motion.div>
-
-          {/* Social links */}
-          <motion.div
-            custom={6} variants={fadeUp} initial="hidden" animate="show"
-            style={{ display: 'flex', gap: 24, alignItems: 'center', marginTop: 4 }}
-          >
-            {[
-              { label: 'GitHub ↗', href: info.github },
-              { label: 'LinkedIn ↗', href: info.linkedin },
-              { label: `${info.email} ↗`, href: `mailto:${info.email}` },
-            ].map(l => (
-              <a
-                key={l.label}
-                href={l.href}
-                target={l.href.startsWith('http') ? '_blank' : undefined}
-                rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                style={{ color: 'var(--text2)', fontSize: 13, fontFamily: 'var(--mono)', transition: 'color 0.2s' }}
-                onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--heading)')}
-                onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text2)')}
-              >
-                {l.label}
-              </a>
-            ))}
-          </motion.div>
-        </div>
+          ))}
+        </motion.div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Purple light source */}
+      <div style={{
+        position: 'absolute',
+        top: '-10%', right: '-5%',
+        width: 1000, height: 1000,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle at 60% 40%, rgba(124,58,237,0.16), transparent 55%)',
+        filter: 'blur(40px)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
+      {/* Bottom fade into About */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        height: 160,
+        background: 'linear-gradient(to bottom, transparent, #f5f6ff)',
+        pointerEvents: 'none', zIndex: 3,
+      }} />
+
+      {/* ── Right: 3D neural network ── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.8 }}
+        transition={{ duration: 1.4, delay: 0.1 }}
         style={{
           position: 'absolute',
-          bottom: 32,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 8,
-          color: 'var(--text2)',
-          fontSize: 11,
-          fontFamily: 'var(--mono)',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          zIndex: 2,
+          right: -60,
+          top: 0,
+          width: '60%',
+          height: '100%',
+          zIndex: 1,
         }}
       >
-        <motion.div
-          animate={{ y: [0, 7, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ fontSize: 18 }}
-        >
-          ↓
-        </motion.div>
-        scroll
+        <HeroScene />
       </motion.div>
     </section>
   )

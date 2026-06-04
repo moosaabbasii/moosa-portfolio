@@ -1,171 +1,162 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { skills } from '../data/portfolio'
+import { skills, certifications } from '../data/portfolio'
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
-}
+const allItems = skills.flatMap(g => g.items)
+const mid = Math.ceil(allItems.length / 2)
+const row1 = allItems.slice(0, mid)
+const row2 = allItems.slice(mid)
 
-const cardVariant = {
-  hidden: { opacity: 0, y: 36 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+function TickerRow({ items, direction = 1, speed = 28 }: { items: string[]; direction?: number; speed?: number }) {
+  const doubled = [...items, ...items, ...items]
+  return (
+    <div style={{
+      overflow: 'hidden',
+      maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
+      WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
+    }}>
+      <motion.div
+        animate={{ x: direction > 0 ? ['0%', '-33.33%'] : ['-33.33%', '0%'] }}
+        transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
+        style={{ display: 'flex', gap: 12, width: 'max-content' }}
+      >
+        {doubled.map((item, i) => (
+          <span
+            key={`${item}-${i}`}
+            style={{
+              display: 'inline-flex', alignItems: 'center',
+              padding: '7px 16px',
+              background: 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 100,
+              fontSize: 13, fontWeight: 500,
+              color: 'rgba(255,255,255,0.65)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {item}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  )
 }
 
 export default function Skills() {
   const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const inView = useInView(ref, { once: true, margin: '-60px' })
 
   return (
-    <section id="skills" ref={ref} style={{ position: 'relative', overflow: 'hidden' }}>
-
-      {/* ── Background image layer ── */}
+    <section
+      id="skills"
+      ref={ref}
+      style={{
+        padding: '100px 0',
+        background: '#080b14',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+        borderTop: '1px solid rgba(255,255,255,0.04)',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      {/* Ambient glow */}
       <div style={{
-        position: 'absolute', inset: 0, zIndex: 0,
-        backgroundImage: 'url(/skills-bg.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',   /* subtle parallax feel */
+        position: 'absolute',
+        top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 800, height: 400,
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(124,58,237,0.18) 0%, transparent 70%)',
+        pointerEvents: 'none',
       }} />
 
-      {/* Dark overlay — keeps our theme, tints toward our palette */}
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 1,
-        background: 'linear-gradient(135deg, rgba(6,6,15,0.88) 0%, rgba(30,10,50,0.82) 50%, rgba(6,6,15,0.90) 100%)',
-      }} />
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.5 }}
+        style={{ padding: '0 80px', marginBottom: 52, position: 'relative' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a78bfa' }}>
+            Tech Stack
+          </span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+        </div>
 
-      {/* Extra top/bottom section fades for seamless blending */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 100, zIndex: 2, background: 'linear-gradient(to bottom, var(--bg2), transparent)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, zIndex: 2, background: 'linear-gradient(to top, var(--bg), transparent)', pointerEvents: 'none' }} />
+        <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          {skills.map(g => (
+            <span key={g.category} style={{
+              padding: '4px 14px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              borderRadius: 100,
+              fontSize: 12, fontWeight: 600,
+              color: 'rgba(255,255,255,0.4)',
+              letterSpacing: '0.04em',
+            }}>
+              {g.category}
+            </span>
+          ))}
+        </div>
+      </motion.div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 3 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          style={{ marginBottom: 56 }}
-        >
-          <div className="section-label">02. Skills</div>
-          <h2 className="section-title">
-            My <span className="grad">Tech Stack</span>
-          </h2>
-          <div className="divider" />
-          <p className="section-subtitle">
-            Tools and technologies I use to build things — from algorithms to cloud infrastructure.
-          </p>
-        </motion.div>
+      {/* Ticker rows */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
+        <TickerRow items={row1} direction={1}  speed={30} />
+        <TickerRow items={row2} direction={-1} speed={25} />
+      </div>
 
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate={inView ? 'show' : 'hidden'}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 20,
-          }}
-        >
-          {skills.map(skill => (
-            <motion.div
-              key={skill.category}
-              variants={cardVariant}
+      {/* Certifications */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        style={{ padding: '52px 80px 0', position: 'relative' }}
+      >
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 20 }}>
+          Certifications
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+          {certifications.map((cert) => (
+            <div
+              key={cert.title}
               style={{
-                background: 'rgba(14,14,31,0.65)',
-                backdropFilter: 'blur(18px)',
-                WebkitBackdropFilter: 'blur(18px)',
-                border: '1px solid rgba(139,92,246,0.2)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 28,
-                transition: 'border-color 0.3s, box-shadow 0.3s, transform 0.3s',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={e => {
-                const el = e.currentTarget
-                el.style.borderColor = `${skill.color}44`
-                el.style.boxShadow = `0 8px 40px ${skill.color}14`
-                el.style.transform = 'translateY(-4px)'
-              }}
-              onMouseLeave={e => {
-                const el = e.currentTarget
-                el.style.borderColor = 'var(--border)'
-                el.style.boxShadow = 'none'
-                el.style.transform = 'translateY(0)'
+                padding: '14px 20px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                borderRadius: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+                maxWidth: 520,
               }}
             >
-              {/* Top accent line */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0, left: 0, right: 0,
-                  height: 2,
-                  background: `linear-gradient(90deg, ${skill.color}, ${skill.color}44)`,
-                }}
-              />
-
-              {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                <span style={{ fontSize: 22 }}>{skill.icon}</span>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--heading)' }}>{skill.category}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#a78bfa', flexShrink: 0 }} />
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>{cert.title}</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{cert.year}</span>
               </div>
-
-              {/* Skill items */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {skill.items.map((item, i) => (
-                  <div key={item}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                      <span style={{ fontSize: 13, color: 'var(--text)', fontFamily: 'var(--mono)' }}>{item}</span>
-                    </div>
-                    <div
-                      style={{
-                        height: 3,
-                        background: 'rgba(255,255,255,0.06)',
-                        borderRadius: 2,
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={inView ? { width: `${88 - i * 5}%` } : {}}
-                        transition={{ duration: 0.9, delay: 0.3 + i * 0.07, ease: 'easeOut' }}
-                        style={{
-                          height: '100%',
-                          background: `linear-gradient(90deg, ${skill.color}, ${skill.color}88)`,
-                          borderRadius: 2,
-                        }}
-                      />
-                    </div>
-                  </div>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', paddingLeft: 16 }}>{cert.issuer}</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingLeft: 16, marginTop: 2 }}>
+                {cert.courses.map(c => (
+                  <span key={c} style={{
+                    fontSize: 11, padding: '2px 10px',
+                    background: 'rgba(124,58,237,0.2)',
+                    border: '1px solid rgba(124,58,237,0.3)',
+                    borderRadius: 100,
+                    color: '#c4b5fd', fontWeight: 500,
+                  }}>
+                    {c}
+                  </span>
                 ))}
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
-
-        {/* Also familiar with */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          style={{ marginTop: 48 }}
-        >
-          <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text2)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 16 }}>
-            Also familiar with
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {['GitHub Actions', 'AWS CloudWatch', 'AWS IAM', 'Streamlit', 'Linux', 'Matplotlib', 'scikit-learn', 'REST APIs', 'Agile / Scrum', 'Data Structures', 'OOP', 'Algorithms'].map(tag => (
-              <motion.span
-                key={tag}
-                className="chip"
-                whileHover={{ scale: 1.05 }}
-                style={{ cursor: 'default' }}
-              >
-                {tag}
-              </motion.span>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </section>
   )
 }

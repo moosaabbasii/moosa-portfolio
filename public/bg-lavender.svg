@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <filter id="b1"><feGaussianBlur stdDeviation="28"/></filter>
+    <filter id="b2"><feGaussianBlur stdDeviation="18"/></filter>
+    <filter id="b3"><feGaussianBlur stdDeviation="40"/></filter>
+    <filter id="b4"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+
+  <!-- Base gradient -->
+  <rect width="1440" height="900" fill="url(#base)"/>
+  <defs>
+    <linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#ede0ff"/>
+      <stop offset="35%"  stop-color="#c9a8f2"/>
+      <stop offset="65%"  stop-color="#b891e8"/>
+      <stop offset="100%" stop-color="#cdb0f0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- White soft zones (left glow, top-right glow) -->
+  <ellipse cx="80"  cy="450" rx="260" ry="200" fill="rgba(255,255,255,0.55)" filter="url(#b3)"/>
+  <ellipse cx="1380" cy="80" rx="200" ry="160" fill="rgba(255,255,255,0.45)" filter="url(#b3)"/>
+  <ellipse cx="200" cy="100" rx="180" ry="120" fill="rgba(255,255,255,0.35)" filter="url(#b3)"/>
+
+  <!-- Diagonal light streak -->
+  <line x1="200" y1="850" x2="1200" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="60" filter="url(#b1)"/>
+  <line x1="300" y1="850" x2="1300" y2="50" stroke="rgba(255,255,255,0.25)" stroke-width="30" filter="url(#b1)"/>
+
+  <!-- Large bokeh circles -->
+  <circle cx="430" cy="580" r="72"  fill="rgba(255,255,255,0.28)" filter="url(#b1)"/>
+  <circle cx="680" cy="430" r="90"  fill="rgba(255,255,255,0.22)" filter="url(#b1)"/>
+  <circle cx="1080" cy="200" r="80" fill="rgba(255,255,255,0.30)" filter="url(#b1)"/>
+  <circle cx="1240" cy="580" r="95" fill="rgba(255,255,255,0.25)" filter="url(#b1)"/>
+  <circle cx="180"  cy="720" r="60" fill="rgba(255,255,255,0.20)" filter="url(#b1)"/>
+  <circle cx="920"  cy="720" r="75" fill="rgba(255,255,255,0.18)" filter="url(#b1)"/>
+
+  <!-- Medium bokeh -->
+  <circle cx="560" cy="200" r="40" fill="rgba(255,255,255,0.32)" filter="url(#b2)"/>
+  <circle cx="850" cy="350" r="35" fill="rgba(255,255,255,0.28)" filter="url(#b2)"/>
+  <circle cx="340" cy="350" r="30" fill="rgba(255,255,255,0.25)" filter="url(#b2)"/>
+  <circle cx="1100" cy="700" r="38" fill="rgba(255,255,255,0.22)" filter="url(#b2)"/>
+  <circle cx="760" cy="650" r="28" fill="rgba(255,255,255,0.20)" filter="url(#b2)"/>
+
+  <!-- Small sparkles -->
+  <circle cx="300"  cy="180" r="5" fill="rgba(255,255,255,0.9)" filter="url(#b4)"/>
+  <circle cx="620"  cy="120" r="4" fill="rgba(255,255,255,0.85)" filter="url(#b4)"/>
+  <circle cx="950"  cy="260" r="5" fill="rgba(255,255,255,0.9)" filter="url(#b4)"/>
+  <circle cx="1150" cy="420" r="4" fill="rgba(255,255,255,0.8)" filter="url(#b4)"/>
+  <circle cx="480"  cy="440" r="3" fill="rgba(255,255,255,0.85)" filter="url(#b4)"/>
+  <circle cx="780"  cy="520" r="4" fill="rgba(255,255,255,0.8)" filter="url(#b4)"/>
+  <circle cx="130"  cy="310" r="4" fill="rgba(255,255,255,0.9)" filter="url(#b4)"/>
+  <circle cx="1300" cy="350" r="3" fill="rgba(255,255,255,0.85)" filter="url(#b4)"/>
+  <circle cx="640"  cy="750" r="4" fill="rgba(255,255,255,0.8)" filter="url(#b4)"/>
+  <circle cx="1020" cy="140" r="3" fill="rgba(255,255,255,0.9)" filter="url(#b4)"/>
+</svg>

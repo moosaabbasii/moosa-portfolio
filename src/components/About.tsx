@@ -1,43 +1,65 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { info, achievements } from '../data/portfolio'
+import { info, achievements, coursework } from '../data/portfolio'
 
-function AnimatedCounter({ value, suffix = '' }: { value: string; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true })
-  const [display, setDisplay] = useState('0')
-  const isDecimal = value.includes('.')
-  const target = parseFloat(value)
+function useCountUp(target: number, decimals: number, inView: boolean) {
+  const [value, setValue] = useState(0)
 
   useEffect(() => {
     if (!inView) return
-    let startTime: number
-    const duration = 1600
-
-    const tick = (now: number) => {
-      if (!startTime) startTime = now
-      const elapsed = now - startTime
+    const duration = 1800
+    const start = Date.now()
+    const tick = () => {
+      const elapsed = Date.now() - start
       const progress = Math.min(elapsed / duration, 1)
       const eased = 1 - Math.pow(1 - progress, 3)
-      const current = eased * target
-      setDisplay(isDecimal ? current.toFixed(2) : String(Math.floor(current)))
+      setValue(parseFloat((eased * target).toFixed(decimals)))
       if (progress < 1) requestAnimationFrame(tick)
-      else setDisplay(value)
+      else setValue(target)
     }
     requestAnimationFrame(tick)
-  }, [inView, target, value, isDecimal])
+  }, [inView, target, decimals])
 
-  return <span ref={ref}>{display}{suffix}</span>
+  return decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString()
 }
 
-const fadeLeft = {
-  hidden: { opacity: 0, x: -40 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
-}
+const statMeta = [
+  { color: '#7c3aed' },
+  { color: '#7c3aed' },
+  { color: '#7c3aed' },
+]
 
-const fadeRight = {
-  hidden: { opacity: 0, x: 40 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
+function StatCard({ a, inView, delay, meta }: { a: typeof achievements[number]; inView: boolean; delay: number; meta: typeof statMeta[number] }) {
+  const isDecimal = a.value.includes('.')
+  const numeric = parseFloat(a.value)
+  const count = useCountUp(numeric, isDecimal ? 2 : 0, inView)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay, duration: 0.5 }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      style={{
+        padding: '28px 24px',
+        background: '#fff',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Subtle top accent */}
+      <p style={{
+        fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em',
+        color: meta.color, lineHeight: 1, marginBottom: 8,
+      }}>
+        {count}{a.suffix}
+      </p>
+      <p style={{ fontSize: 13, color: 'var(--text3)', fontWeight: 500 }}>{a.label}</p>
+    </motion.div>
+  )
 }
 
 export default function About() {
@@ -48,220 +70,93 @@ export default function About() {
     <section
       id="about"
       ref={ref}
-      style={{ position: 'relative', overflow: 'hidden' }}
+      className="section-pad"
+      style={{ padding: '120px 80px', background: '#f5f6ff' }}
     >
-      {/* ── Flashy aurora background ── */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        {/* Base */}
-        <div style={{ position: 'absolute', inset: 0, background: 'var(--bg2)' }} />
-        {/* Aurora blobs */}
-        <div style={{
-          position: 'absolute', top: '-20%', left: '-10%',
-          width: 700, height: 700, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 65%)',
-          filter: 'blur(40px)',
-        }} />
-        <div style={{
-          position: 'absolute', top: '10%', right: '-5%',
-          width: 500, height: 500, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(34,211,238,0.14) 0%, transparent 65%)',
-          filter: 'blur(40px)',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '-10%', left: '35%',
-          width: 600, height: 400, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 65%)',
-          filter: 'blur(50px)',
-        }} />
-        {/* Mesh grid */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(139,92,246,0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(139,92,246,0.05) 1px, transparent 1px)
-          `,
-          backgroundSize: '48px 48px',
-        }} />
-        {/* Top edge glow line */}
-        <div style={{
-          position: 'absolute', top: 0, left: '10%', right: '10%',
-          height: 1,
-          background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.5), rgba(34,211,238,0.5), transparent)',
-        }} />
-        {/* Bottom edge glow line */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: '10%', right: '10%',
-          height: 1,
-          background: 'linear-gradient(90deg, transparent, rgba(34,211,238,0.3), transparent)',
-        }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 72 }}>
+        <span className="section-label">About</span>
+        <div className="divider" />
       </div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 72, alignItems: 'start' }}>
+      <div
+        className="about-grid"
+        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}
+      >
+        {/* Left: bio */}
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          animate={inView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.7 }}
+        >
+          <h2 style={{
+            fontSize: 'clamp(32px, 3.5vw, 50px)',
+            fontWeight: 800, lineHeight: 1.15,
+            letterSpacing: '-0.025em', marginBottom: 24,
+          }}>
+            CS student by semester,{' '}
+            <span style={{ color: 'var(--accent)' }}>engineer by mindset.</span>
+          </h2>
 
-          {/* ── Left column ── */}
-          <motion.div
-            variants={fadeLeft}
-            initial="hidden"
-            animate={inView ? 'show' : 'hidden'}
-            style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
-          >
-            <div>
-              <div className="section-label">01. About Me</div>
-              <h2 className="section-title">
-                Who <span className="grad">I Am</span>
-              </h2>
-              <div className="divider" />
-            </div>
+          <p style={{ fontSize: 16, color: 'var(--text2)', lineHeight: 1.8, marginBottom: 20 }}>
+            {info.bio}
+          </p>
+          <p style={{ fontSize: 16, color: 'var(--text2)', lineHeight: 1.8, marginBottom: 24 }}>
+            Studying Computer Science at the University of South Florida Honors College.
+            Former Huawei intern. Building cloud-native systems, AI tools, and sustainability research on the side.
+          </p>
 
-            <p style={{ color: 'var(--text2)', fontSize: 16, lineHeight: 1.8 }}>
-              I'm a <span style={{ color: 'var(--heading)', fontWeight: 600 }}>Computer Science student</span> in the{' '}
-              <span style={{ color: 'var(--accent2)' }}>USF Honors College</span> maintaining a{' '}
-              <span style={{ color: 'var(--accent3)', fontWeight: 700 }}>3.90 GPA</span>. I'm a{' '}
-              <span style={{ color: 'var(--heading)', fontWeight: 600 }}>Green & Gold Presidential Scholar</span> and
-              Dean's List student passionate about building systems that are both technically elegant and genuinely useful.
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 10 }}>
+              Relevant Coursework
             </p>
-
-            <p style={{ color: 'var(--text2)', fontSize: 16, lineHeight: 1.8 }}>
-              I've interned at{' '}
-              <span style={{ color: 'var(--heading)', fontWeight: 600 }}>Huawei Technologies</span>, served as a{' '}
-              <span style={{ color: 'var(--accent)' }}>USF Student Government Senator</span>, and
-              I'm currently building a serverless AWS cloud project. My interests span{' '}
-              <span style={{ color: 'var(--accent2)' }}>AI/ML, cloud architecture, computer vision</span>, and
-              systems programming.
-            </p>
-
-            <p style={{ color: 'var(--text2)', fontSize: 16, lineHeight: 1.8 }}>
-              Outside of class I'm always hacking on something — whether that's an image processing pipeline,
-              a data compression algorithm, or exploring Andrew Ng's ML Specialization on Coursera.
-            </p>
-
-            <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
-              <a href={`mailto:${info.email}`} className="btn-primary">Say Hello</a>
-              <a href={info.github} target="_blank" rel="noopener noreferrer" className="btn-outline">GitHub ↗</a>
-            </div>
-          </motion.div>
-
-          {/* ── Right column ── */}
-          <motion.div
-            variants={fadeRight}
-            initial="hidden"
-            animate={inView ? 'show' : 'hidden'}
-            style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
-          >
-            {/* Avatar */}
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <div style={{ position: 'relative', width: 160, height: 160 }}>
-                {/* Spinning conic ring */}
-                <div style={{
-                  position: 'absolute', inset: -5,
-                  borderRadius: '50%',
-                  background: 'conic-gradient(from 0deg, #8b5cf6, #22d3ee, #f59e0b, #10b981, #8b5cf6)',
-                  animation: 'rotate-slow 3.5s linear infinite',
-                }} />
-                {/* Gap ring */}
-                <div style={{ position: 'absolute', inset: -1, borderRadius: '50%', background: 'var(--bg2)' }} />
-                {/* Photo */}
-                <div style={{
-                  position: 'relative', width: '100%', height: '100%',
-                  borderRadius: '50%', overflow: 'hidden', zIndex: 1,
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {coursework.map(c => (
+                <span key={c} style={{
+                  fontSize: 12, padding: '4px 12px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 100,
+                  color: 'var(--text2)', fontWeight: 500,
                 }}>
-                  <img
-                    src="/avatar.png"
-                    alt="Moosa Abbasi"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={e => {
-                      const el = e.target as HTMLImageElement
-                      el.style.display = 'none'
-                      const p = el.parentElement!
-                      p.style.background = 'linear-gradient(135deg, #8b5cf6, #22d3ee)'
-                      p.style.display = 'flex'
-                      p.style.alignItems = 'center'
-                      p.style.justifyContent = 'center'
-                      p.innerHTML = '<span style="font-size:56px;font-weight:900;color:rgba(255,255,255,0.9)">M</span>'
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-              {achievements.map(a => (
-                <div
-                  key={a.label}
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(139,92,246,0.2)',
-                    borderRadius: 'var(--radius)',
-                    padding: '24px 16px',
-                    textAlign: 'center',
-                    backdropFilter: 'blur(12px)',
-                    transition: 'border-color 0.3s, box-shadow 0.3s',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(139,92,246,0.5)'
-                    ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 28px rgba(139,92,246,0.15)'
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(139,92,246,0.2)'
-                    ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
-                  }}
-                >
-                  <div style={{
-                    fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 800,
-                    background: 'var(--grad)',
-                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                    lineHeight: 1, marginBottom: 8,
-                  }}>
-                    <AnimatedCounter value={a.value} suffix={a.suffix} />
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--text2)', fontFamily: 'var(--mono)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                    {a.label}
-                  </div>
-                </div>
+                  {c}
+                </span>
               ))}
             </div>
+          </div>
+        </motion.div>
 
-            {/* Quick info card */}
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(139,92,246,0.18)',
+        {/* Right: counting stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, position: 'relative' }}>
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 500, height: 400, borderRadius: '50%',
+            background: 'radial-gradient(ellipse, rgba(124,58,237,0.07), transparent 70%)',
+            filter: 'blur(60px)', pointerEvents: 'none',
+          }} />
+          {achievements.map((a, i) => (
+            <StatCard key={i} a={a} inView={inView} delay={0.15 + i * 0.1} meta={statMeta[i]} />
+          ))}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            style={{
+              padding: '28px 24px',
+              background: 'var(--accent)',
               borderRadius: 'var(--radius-lg)',
-              padding: 28,
-              backdropFilter: 'blur(16px)',
-              display: 'flex', flexDirection: 'column', gap: 16,
-            }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--accent2)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-                Quick Info
-              </div>
-              {[
-                { label: 'University', value: 'University of South Florida' },
-                { label: 'Major',      value: 'Computer Science' },
-                { label: 'College',    value: 'Honors College' },
-                { label: 'Graduation', value: 'May 2027' },
-                { label: 'Location',   value: info.location },
-                { label: 'Email',      value: info.email },
-              ].map(item => (
-                <div key={item.label} style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  paddingBottom: 12,
-                  borderBottom: '1px solid rgba(139,92,246,0.08)',
-                }}>
-                  <span style={{ fontSize: 13, color: 'var(--text2)', fontFamily: 'var(--mono)' }}>{item.label}</span>
-                  <span style={{ fontSize: 14, color: 'var(--heading)', fontWeight: 500 }}>{item.value}</span>
-                </div>
-              ))}
-            </div>
+              gridColumn: 'span 2',
+            }}
+          >
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 6, fontWeight: 500 }}>
+              Currently enrolled at
+            </p>
+            <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
+              USF Honors College · Computer Science
+            </p>
           </motion.div>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          #about .container > div { grid-template-columns: 1fr !important; gap: 40px !important; }
-        }
-      `}</style>
     </section>
   )
 }

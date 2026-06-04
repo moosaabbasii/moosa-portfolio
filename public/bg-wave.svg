@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice">
+  <!-- Dark base -->
+  <rect width="1440" height="700" fill="#1a0035"/>
+
+  <!-- Main wave blob -->
+  <path d="M-50,160 C150,80 350,140 550,170 C750,200 950,130 1150,90 C1300,60 1420,80 1490,110
+           L1490,520 C1320,560 1100,590 880,550 C660,510 440,570 220,590 C80,600 -60,570 -50,520 Z"
+        fill="#35006a" opacity="0.85"/>
+
+  <!-- Top-right dark cap -->
+  <path d="M900,0 C1050,0 1200,30 1440,60 L1440,0 Z" fill="#130028" opacity="0.9"/>
+
+  <!-- Bottom-left dark cap -->
+  <path d="M0,700 C150,680 300,650 0,620 Z" fill="#130028" opacity="0.9"/>
+
+  <!-- Subtle highlight on wave -->
+  <path d="M-50,200 C200,130 420,190 640,210 C820,225 1000,165 1200,125
+           L1180,200 C980,240 780,300 580,280 C380,260 180,310 -50,340 Z"
+        fill="#4a0088" opacity="0.2"/>
+</svg>
