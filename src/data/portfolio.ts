@@ -97,10 +97,10 @@ export const experience = [
     color: '#7c3aed',
     type: 'Research',
     bullets: [
-      'Contributing to the AI Course Companion (AICC) — an LLM-powered educational tool integrated into Canvas LMS, developed under Dr. Oguzhan Topsakal as part of CIS 4915',
-      'Conducted a comprehensive black-box usability review following OWASP WSTG v4.2, identifying 23 findings across Ask Mode, Practice Mode, Review Mode, and mobile app — rated by severity using Nielsen Norman heuristics and Laws of UX',
-      'Produced a formal 12-page usability report with AI-assisted screenshot analysis, documenting a critical broken mobile authentication flow caused by delayed Canvas OAuth and ranking top improvement recommendations',
-      'Designing and executing a formal security testing plan spanning 27 OWASP test cases using Burp Suite and OWASP ZAP — covering XSS, SQL injection, CSRF, session token analysis, and independently scoping prompt injection as an LLM-specific attack vector not yet in WSTG v4.2',
+      'Conducted a full black-box + gray-box security assessment of the AI Course Companion (AICC) — an LLM-powered Canvas-integrated study tool — under Dr. Oguzhan Topsakal, following OWASP WSTG v4.2 across information gathering, authentication, session management, input validation (XSS, HPP, SSTI, SSRF), error handling, and prompt injection as an LLM-specific supplementary category',
+      'Built a Python + Playwright automated test suite covering all WSTG categories with a secondary Gemini-based LLM evaluator to eliminate false positives from naive keyword-matching; solved the authentication challenge by working with the AICC developer to obtain a scoped self-expiring session token for authenticated browser-driven tests',
+      'Performed hypothesis-driven gray-box source review of the OAuth flow and backend API directory after being granted repository access — tracing request authentication and course data serving, then reproducing identified issues live against the sandbox to confirm exploitability',
+      'Containerized the full test suite with Docker and deployed it to Google Cloud Run as a Job in AICC\'s GCP project — secrets in Secret Manager, results in GCS — then built and deployed a Flask web interface (Cloud Run Service) for browser-based test execution and result retrieval, handling all IAM, service-account, and Job/Service infrastructure',
     ],
   },
   {
