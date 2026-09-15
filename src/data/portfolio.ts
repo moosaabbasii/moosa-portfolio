@@ -20,7 +20,7 @@ export const info = {
 }
 
 export const achievements = [
-  { label: 'GPA', value: '3.90', suffix: '' },
+  { label: 'GPA', value: '3.86', suffix: '' },
   { label: 'Projects Built', value: '10', suffix: '+' },
   { label: 'Honors Scholar', value: '4', suffix: 'yr' },
 ]
@@ -37,7 +37,7 @@ export const skills = [
     category: 'Languages',
     icon: '⌨️',
     color: '#8b5cf6',
-    items: ['Python', 'C', 'C++', 'JavaScript', 'TypeScript', 'SQL', 'C#'],
+    items: ['Python', 'C', 'C++', 'JavaScript', 'TypeScript', 'SQL', 'PHP', 'C#'],
   },
   {
     category: 'Frameworks & Libraries',
@@ -49,7 +49,7 @@ export const skills = [
     category: 'Cloud & DevOps',
     icon: '☁️',
     color: '#f59e0b',
-    items: ['AWS Lambda', 'DynamoDB', 'API Gateway', 'S3', 'SNS', 'EventBridge', 'Docker'],
+    items: ['AWS Lambda', 'DynamoDB', 'API Gateway', 'S3', 'SNS', 'EventBridge', 'Cloud Run', 'Secret Manager', 'GCS', 'Docker'],
   },
   {
     category: 'Databases',
@@ -61,7 +61,7 @@ export const skills = [
     category: 'Security & Testing',
     icon: '🔒',
     color: '#ef4444',
-    items: ['Burp Suite', 'OWASP ZAP', 'OWASP WSTG', 'XSS/SQLi', 'Prompt Injection', 'HTTP Traffic Analysis'],
+    items: ['Burp Suite', 'OWASP ZAP', 'OWASP WSTG', 'Playwright', 'XSS/SQLi', 'Prompt Injection', 'HTTP Traffic Analysis'],
   },
   {
     category: 'Tools',
@@ -87,6 +87,10 @@ export const coursework = [
   'Analysis of Algorithms',
   'Computer Architecture',
   'Software Engineering',
+  'Computer Logic & Design',
+  'Automata Theory',
+  'Introduction to AI',
+  'Honors Capstone',
 ]
 
 export const experience = [
@@ -101,6 +105,18 @@ export const experience = [
       'Built a Python + Playwright automated test suite covering all WSTG categories with a secondary Gemini-based LLM evaluator to eliminate false positives from naive keyword-matching; solved the authentication challenge by working with the AICC developer to obtain a scoped self-expiring session token for authenticated browser-driven tests',
       'Performed hypothesis-driven gray-box source review of the OAuth flow and backend API directory after being granted repository access — tracing request authentication and course data serving, then reproducing identified issues live against the sandbox to confirm exploitability',
       'Containerized the full test suite with Docker and deployed it to Google Cloud Run as a Job in AICC\'s GCP project — secrets in Secret Manager, results in GCS — then built and deployed a Flask web interface (Cloud Run Service) for browser-based test execution and result retrieval, handling all IAM, service-account, and Job/Service infrastructure',
+    ],
+  },
+  {
+    role: 'Student Software Developer',
+    company: 'AI Course Companion · USF',
+    period: 'Aug 2026 – Present',
+    color: '#3b82f6',
+    type: 'Industry',
+    bullets: [
+      'Remediated security vulnerabilities identified through the AICC security assessment, shipping production fixes across session management, data exposure, security headers, CORS controls, and Google Cloud Storage access',
+      'Developed and maintained PHP 8.1 backend and JavaScript frontend components across the AICC codebase, implementing API endpoints, application logic, LLM integrations, and data-serving workflows for the Canvas-embedded platform',
+      'Built admin dashboard features for usage and student-question analytics, developing supporting backend APIs and frontend modules to surface application insights and recurring student queries, while resolving production issues',
     ],
   },
   {
@@ -165,8 +181,8 @@ export const projects = [
     name: 'Smart Job Tracker',
     tagline: 'Serverless AWS Job Application Platform',
     description:
-      'Serverless platform to log job applications, track statuses, and receive automated email follow-up reminders. Built entirely on AWS Free Tier.',
-    tech: ['Python', 'AWS Lambda', 'DynamoDB', 'API Gateway', 'EventBridge', 'SNS', 'Streamlit'],
+      'Serverless job application tracker with a Chrome Extension (MV3) using XHR monkey-patching and MutationObserver for zero-loss capture, a 5-Lambda backend with DynamoDB, Cognito JWT auth, and a live Streamlit dashboard with EventBridge + SES email reminders — architected entirely within AWS Free Tier.',
+    tech: ['Python', 'AWS Lambda', 'DynamoDB', 'API Gateway', 'Cognito', 'EventBridge', 'SES', 'Streamlit', 'Chrome Extension'],
     color: '#7c3aed',
     emoji: '🎯',
     github: 'https://github.com/moosaabbasii/Smart-Job-Tracker',
