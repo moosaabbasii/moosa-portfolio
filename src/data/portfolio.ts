@@ -73,6 +73,13 @@ export const skills = [
 
 export const certifications = [
   {
+    title: 'Undergraduate Research to Ph.D. Program (UR2PhD)',
+    issuer: 'University of South Florida',
+    year: '2026 – Present',
+    courses: ['Vision-Language Models', 'Medical AI Research', 'Endometriosis Detection'],
+    color: '#3b82f6',
+  },
+  {
     title: 'Machine Learning Specialization',
     issuer: 'DeepLearning.AI & Stanford University · Coursera',
     year: '2026',
@@ -82,15 +89,15 @@ export const certifications = [
 ]
 
 export const coursework = [
-  'Data Structures',
-  'Discrete Structures',
   'Analysis of Algorithms',
+  'Discrete Structures',
   'Computer Architecture',
   'Software Engineering',
-  'Computer Logic & Design',
+  'Software System Development',
+  'Secure Coding',
+  'Operating Systems',
   'Automata Theory',
   'Introduction to AI',
-  'Honors Capstone',
 ]
 
 export const experience = [
@@ -101,10 +108,10 @@ export const experience = [
     color: '#7c3aed',
     type: 'Research',
     bullets: [
-      'Conducted a full black-box + gray-box security assessment of the AI Course Companion (AICC) — an LLM-powered Canvas-integrated study tool — under Dr. Oguzhan Topsakal, following OWASP WSTG v4.2 across information gathering, authentication, session management, input validation (XSS, HPP, SSTI, SSRF), error handling, and prompt injection as an LLM-specific supplementary category',
-      'Built a Python + Playwright automated test suite covering all WSTG categories with a secondary Gemini-based LLM evaluator to eliminate false positives from naive keyword-matching; solved the authentication challenge by working with the AICC developer to obtain a scoped self-expiring session token for authenticated browser-driven tests',
-      'Performed hypothesis-driven gray-box source review of the OAuth flow and backend API directory after being granted repository access — tracing request authentication and course data serving, then reproducing identified issues live against the sandbox to confirm exploitability',
-      'Containerized the full test suite with Docker and deployed it to Google Cloud Run as a Job in AICC\'s GCP project — secrets in Secret Manager, results in GCS — then built and deployed a Flask web interface (Cloud Run Service) for browser-based test execution and result retrieval, handling all IAM, service-account, and Job/Service infrastructure',
+      'Designed and executed a two-phase (black-box, then gray-box) security assessment of AICC — a deployed Canvas-integrated LLM study assistant used across 40+ university courses — scoped against OWASP WSTG v4.2 and automated as 98 parametrized test cases in Python/Playwright',
+      'Built an LLM-based triage layer using a Gemini response classifier to replace brittle keyword matching, resolving false positives driven by multi-second model latency and error responses; manually verified every retained finding',
+      'Proposed and engineered a prompt-injection evaluation phase beyond WSTG v4.2, testing 30+ hand-crafted and model-generated direct payloads against deployed guardrails, and extending coverage to indirect, context-borne prompt-injection vectors',
+      'Containerized the assessment pipeline and deployed it using Docker, Cloud Run Jobs and Services, Cloud Storage, and Secret Manager — enabling repeatable, credential-isolated testing against an authorized sandbox environment',
     ],
   },
   {
@@ -114,15 +121,40 @@ export const experience = [
     color: '#3b82f6',
     type: 'Industry',
     bullets: [
-      'Remediated security vulnerabilities identified through the AICC security assessment, shipping production fixes across session management, data exposure, security headers, CORS controls, and Google Cloud Storage access',
-      'Developed and maintained PHP 8.1 backend and JavaScript frontend components across the AICC codebase, implementing API endpoints, application logic, LLM integrations, and data-serving workflows for the Canvas-embedded platform',
-      'Built admin dashboard features for usage and student-question analytics, developing supporting backend APIs and frontend modules to surface application insights and recurring student queries, while resolving production issues',
+      'Developer on a production Canvas-embedded LLM study assistant in use across university courses (PHP 8.1, vanilla JS, Gemini/Azure OpenAI, Google Cloud Run/Storage); all changes merged through peer code review on a shared production repository',
+      'Remediated findings from the internal security assessment across five peer-reviewed pull requests, strengthening server-side session validation, API authorization, response minimization, HTTP security headers, and cloud-storage access controls',
+      'Designed and shipped the Canvas OAuth re-authorization flow for cross-course access — enrollment derived from the identity provider rather than client-asserted, the access token consumed within a single request and never persisted, and the round trip bound to the caller\'s session by a single-use nonce',
+      'Engineered privacy-preserving usage instrumentation end to end: a normalized event taxonomy carrying hashed identifiers and no PII, server-side aggregation via the Analytics Data API with per-course filtering and caching, deployed to live collection on the student application',
+    ],
+  },
+  {
+    role: 'Undergraduate Researcher',
+    company: 'Vision-Language Models · USF Health',
+    period: 'Aug 2026 – Present',
+    color: '#7c3aed',
+    type: 'Research',
+    bullets: [
+      'Building a reproducible evaluation pipeline for vision-language models on 373 expert-annotated laparoscopic surgery frames (102 patients) with USF Health, through the UR2PhD program under Dr. Lawrence O. Hall',
+      'Designed the project\'s patient-level train/validation/test split (70/15/15, fixed seed), eliminating a data-leakage path that inflates reported accuracy in prior published work on the dataset; adopted as the team\'s evaluation standard',
+      'Benchmarked a frontier multimodal model zero-shot across four lesion categories on held-out patients to isolate class-dependent failure modes, and adapting a training-free active prompt-tuning framework (CVPR 2026) to cut expert-annotation cost',
+    ],
+  },
+  {
+    role: 'Undergraduate Research Assistant',
+    company: 'Cash Reconciliation Digital Twin · USF',
+    period: 'Aug 2026 – Present',
+    color: '#3b82f6',
+    type: 'Research',
+    bullets: [
+      'Designed and built a digital-twin cash-reconciliation system that matches ledger-to-bank transactions, detects and classifies reconciliation exceptions, and traces root causes through a configurable rule-based matching and scoring engine',
+      'Benchmarked against BenchRec (ICAIF 2023), a real-world Tier 1 bank dataset of ~150,000 transaction records across ~56,000 match clusters, building a schema adapter to derive pair-level ground truth',
+      'Identified the dominant failure mode — amount-based candidate blocking discarded 99.97% of true pairs — and defined the remediation roadmap now driving the project: TF-IDF reference-text blocking, grouped matching, and a learned ranker',
     ],
   },
   {
     role: 'Undergraduate Research Assistant',
     company: 'Sustainability Emissions · USF',
-    period: 'Jan 2026 – Present',
+    period: 'Mar 2026 – Jun 2026',
     color: '#3b82f6',
     type: 'Research',
     bullets: [
@@ -205,7 +237,7 @@ export const projects = [
     name: 'Digital Image Processing',
     tagline: 'Computer Vision Pipeline with OpenCV',
     description:
-      'Image processing toolkit implementing filters, edge detection, and transformations from scratch using Python, OpenCV, and NumPy.',
+      'Python/OpenCV pipeline for image enhancement, edge detection, and noise reduction using Gaussian/Sobel filtering, adaptive contrast, and Otsu thresholding across 500+ images. Improved edge-detection accuracy by 35% and visual precision by 40%. Evaluated K-means and Watershed segmentation against ground-truth masks.',
     tech: ['Python', 'OpenCV', 'NumPy', 'Matplotlib'],
     color: '#7c3aed',
     emoji: '🖼️',
